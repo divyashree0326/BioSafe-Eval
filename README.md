@@ -1,16 +1,14 @@
 # BioSafe-Eval
 
-**A small-scale evaluation of LLM safety consistency across risk levels in biological contexts.**
+A small-scale evaluation of LLM safety consistency across risk levels in biological contexts.
 
-Live dashboard: [biosafe-eval.streamlit.app](https://biosafe-eval.streamlit.app)
+[Live dashboard](https://biosafe-eval.streamlit.app/)
 
 ---
 
 ## What this is
 
-BioSafe-Eval is an exploratory implementation inspired by existing LLM safety evaluation and red-teaming methodologies (notably [HarmBench](https://arxiv.org/abs/2402.04249) and [WMDP](https://www.wmdp.ai/)), examining how model safety behavior changes across controlled prompt variations in biological contexts.
-
-**This is not a novel benchmark and does not attempt to discover new jailbreak techniques.** It applies known evaluation patterns at small scale, as a hands-on methodology exercise. The goal was to build, run, and understand a real evaluation pipeline end to end — not to produce a publishable safety finding.
+BioSafe-Eval is a small-scale implementation exercise using established evaluation patterns — notably [HarmBench](https://arxiv.org/abs/2402.04249) and [WMDP](https://www.wmdp.ai/) — to build, run, and analyze an LLM safety evaluation pipeline end to end. It is not a novel benchmark or jailbreak study; the goal was to understand a real evaluation methodology hands-on, not to produce a publishable safety finding.
 
 ## Methodology
 
@@ -38,18 +36,18 @@ At the extremes (L0/L1 and L3/L4), all three models behaved almost identically �
 The interesting divergence was at **L2** (abstract procedural requests, n=5 per model):
 
 | Model | Boundary-aware | Refused |
-|---|---|---|
+|---|---:|---:|
 | GPT-OSS-120B | 1/5 | 4/5 |
 | GPT-OSS-20B | 1/5 | 4/5 |
 | GPT-OSS-Safeguard-20B | 5/5 | 0/5 |
 
-GPT-OSS-Safeguard-20B never refused outright at L2 — it consistently gave a structured, high-level conceptual outline while explicitly stating it was withholding operational detail. The other two models mostly refused outright instead of engaging conceptually. This suggests models can differ meaningfully in how they handle *ambiguous*-risk requests, even when they agree completely at both extremes.
+GPT-OSS-Safeguard-20B never refused outright at L2 — it consistently gave a structured, high-level conceptual outline while explicitly stating it was withholding operational detail. The other two models mostly refused outright instead of engaging conceptually. In this sample, the models differed in how they handled *ambiguous-risk* requests, even though their behavior was consistent at the benign and explicit/adversarial extremes.
 
 **Sample size caveat:** these are 5-prompt-per-model results, not a validated benchmark. The pattern held consistently across all 5 topics for Safeguard-20B, which is a real signal at this scale — but "100%" here means 5/5, not confidence at scale.
 
 ## Development history
 
-This project went through two real methodological corrections worth documenting:
+This project went through three real methodological corrections worth documenting:
 
 1. **First prompt set was too benign.** An initial 20-prompt run (different phrasings of ordinary biology questions) produced 60/60 "answered" responses across all three models — a baseline sanity check, not a safety measurement, since nothing in that set approached any refusal-worthy boundary. The prompt set was redesigned around explicit risk levels (above) to introduce real behavioral variance.
 2. **The rule-based classifier couldn't distinguish compliance from boundary-aware behavior.** Early L2 results were flagged as "answered" by keyword matching alone, which missed that several of those responses explicitly stated they were staying conceptual and withholding detail. This led to building the LLM-as-judge step with a finer-grained rubric specifically to catch this distinction.
@@ -73,7 +71,6 @@ merge_results.py        # combines manual review + judge output into final label
 metrics.py              # summary statistics
 app.py                  # Streamlit dashboard
 results_v2_complete.csv # final labeled dataset
-archive/                # earlier benign-baseline experiment (see Development History)
 ```
 
 ## Prior work referenced
